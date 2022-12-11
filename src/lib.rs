@@ -68,10 +68,12 @@ impl CanonicalValue {
                 buf.extend(b"false");
                 Ok(())
             }
-            CanonicalValue::Number(Number::I64(n)) => match itoa::write(buf, n) {
-                Ok(_) => Ok(()),
-                Err(err) => Err(Error::Custom(format!("cannot write number: {}", err))),
-            },
+            CanonicalValue::Number(Number::I64(n)) => {
+                let mut buffer = itoa::Buffer::new();
+                let s = buffer.format(n).as_bytes();
+                buf.extend(s);
+                Ok(())
+            }
             CanonicalValue::String(ref s) => {
                 let s = serde_json::to_string(&Value::String(s.clone()))?;
                 buf.extend(s.as_bytes());
